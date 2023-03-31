@@ -70,7 +70,8 @@
 > Function<Int, String> func = (intValue) -> String.valueOf(intValue);
 > ```
 
-### Stream 을 통한 합계 구하기  
+### Stream API 
+> **합계 구하기**    
 > ```java
 > // Stream 의 reduce 이용
 > Integer sum1 = Arrays.asList(1, 2, 3, 4, ,5).stream().reduce(0, Integer:sum);
@@ -79,3 +80,52 @@
 > int sum2 = Arrays.asList(1, 2, 3, 4, ,5).stream().mapToInt(i -> i).sum();
 >```
 
+### LocalDate, LocalDateTime, ZonedDateTime
+> java 8 에서 새로 추가된 날짜 클래스들.  
+> 
+> 현재 시간 구하기
+> ```java
+> // 시스템 타임존의 현재 시간
+> LocalDateTime now1 = LocalDateTime.now();  
+> ZonedDateTime now2 = ZonedDateTime.now();   
+> 
+> // 직접 정한 타임존의 현재 시간
+> LocalDateTime now3 = LocalDateTime.now(ZoneId.of("UTC"));  
+> ZonedDateTime now4 = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));    
+> ```
+> 날짜 변환하기
+>   
+> ```java
+> public static final ZoneId ZONE_KST = ZoneId.of("Asia/Seoul");
+> public static final ZoneId ZONE_UTC = ZoneId.of("UTC");
+> 
+> // UTC LocalDateTime -> KST ZonedDateTime 변환
+> LocalDateTime nowUTC = LocalDateTime.now(ZONE_UTC);
+> ZonedDateTime convertedKST = ZonedDateTime.of(nowUTC, ZONE_UTC)
+>                .withZoneSameInstant(ZONE_KST);
+> 
+> // KST ZonedDateTime -> UTC LocalDateTime 변환
+> ZonedDateTime nowKST = ZonedDateTime.now(ZONE_KST);
+> LocalDateTime convertedUTC = nowKST
+>                .withZoneSameInstant(ZONE_UTC)
+>                .toLocalDateTime();
+> 
+> // timestamp millisecond -> UTC LocalDateTime 변환
+> long nowTimestamp = System.currentTimeMillis(); 
+> LocalDateTime timestampUTC = LocalDateTime.ofInstant(Instant.ofEpochMilli(nowTimestamp), ZONE_UTC);
+> ```
+
+---
+
+## java 11
+### TODO
+> 
+
+### TODO
+> 
+
+### TODO
+> 
+
+### TODO
+> 
