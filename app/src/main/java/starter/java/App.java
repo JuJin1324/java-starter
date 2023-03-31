@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Optional;
 
 public class App {
     public static final ZoneId ZONE_KST = ZoneId.of("Asia/Seoul");
@@ -30,5 +31,18 @@ public class App {
         long nowTimestamp = System.currentTimeMillis();
         LocalDateTime timestampUTC = LocalDateTime.ofInstant(Instant.ofEpochMilli(nowTimestamp), ZONE_UTC);
         System.out.println("timestampUTC = " + timestampUTC);
+
+        Optional<String> stringOpt = getString("optional");
+        stringOpt.ifPresent(str -> System.out.println("str = " + str));
+        System.out.println("stringOpt.isPresent = " + stringOpt.isPresent());
+        System.out.println("stringOpt.isEmpty = " + stringOpt.isEmpty());
+
+        String str = getString(null)
+                .orElse("orElseGet");
+        System.out.println("str = " + str);
+    }
+
+    private static Optional<String> getString(String str) {
+        return Optional.ofNullable(str);
     }
 }

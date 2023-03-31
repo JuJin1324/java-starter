@@ -5,3 +5,4 @@
 
 # Ignore Gradle build output directory
 build
+/app/out/production/classes/starter/java/App.class
