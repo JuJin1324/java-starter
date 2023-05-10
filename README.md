@@ -7,6 +7,44 @@
 > `brew tap homebrew/cask-versions` 명령어를 치고 나서 `brew search corretto` 를 하면 안보이던 이전 버전의 corretto 들이 표시된다.  
 > `brew install corretto8` 및 `brew install corretto11` 을 설치할 수 있다.  
 
+### jps
+> 유닉스의 명령어중 'ps'는 현재 실행되고 있는 프로세스들을 표시하는 명령어인데 `jps` 명령어는 현재 실행되고있는 JVM 프로세스를 표시해준다.  
+> java 로 실행한 프로세스만 보이며, serivce 로 등록하여 실행한 프로세스는 보이지 않는다.  
+> ```shell
+> # 단순 실행
+> jps
+> 
+> # 구동시 입력했던 JVM 파라미터도 함께 표시
+> jps -v
+> ```
+
+### jstack
+> 스레드 전체 덤프를 출력한다. JVM 내부에서 각 Thread 객체마다 Thread.getAllStackTraces, Thread.dumpStack()을 호출한 것과 동일하다. 
+> 시스템에 따라 Hang이 발생할 수 있다. `-l` 옵션을 주면 잠금 세부 사항도 확인할 수 있다.  
+> ```shell
+> # 일반 사용
+> sudo jstack <PID>
+> 
+> # 잠금 세부 사항 추가 확인
+> sudo jstack -l <PID>
+> ```
+> Amazon EC2 사용 시 jre 만 설치되어 있는 경우 jstack 을 사용할 수 없다. 이 경우 JDK 를 설치하여 사용한다.  
+> Amazon EC2 에 JDK 1.8 버전 설치: `sudo yum install -y java-1.8.0-openjdk-devel.x86_64`  
+
+### jmap
+> jmap명령어는 jvm의 맵을 보여주는 기능을 제공하는 기본 분석 도구이다. 따라서 자바 힙 메모리의 정보를 얻거나 메모리 dump를 떠서 분석을 할 수 있다.  
+> stop-the-world 를 발생시키므로 서비스 중인 프로세스에는 반드시 필요한 상황에서만 사용해야 한다.  
+> ```shell
+> jmap -dump:format=b,file=<파일명>.hprof <PID>
+> ```
+
+### VisualVM
+> jmap 으로 heap 덤프를 뜬 .hprof 파일을 열어서 상세 정보를 보여주는 프로그램.  
+> **설치**  
+> macOS: `brew install --cask visualvm`  
+
+---
+
 ## OOP
 ### 정적 팩토리 메서드(Static Factory Method)
 > 생성자에 비해 갖는 장점  
