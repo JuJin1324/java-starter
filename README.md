@@ -263,3 +263,192 @@
 
 ### Garbage Collector
 > Java 8 에서 사용하던 GC 인 Paralle GC 에서 변경되어 Java 11의 Default GC는 `G1 GC` 이다.
+
+---
+
+## Async
+### 동기/비동기
+> **동기식 처리(Synchronous)**  
+> 동기식 처리 모델(Synchronous processing model)은 직렬적으로 태스크(task)를 수행한다.  
+> 즉, 태스크는 순차적으로 실행되며 어떤 작업이 수행 중이면 다음 작업은 대기하게 된다.  
+> 
+> **비동기식 처리 (Asynchronous)**  
+> 비동기식 처리 모델(Asynchronous processing model 또는 Non-Blocking processing model)은 병렬적으로 태스크를 수행한다.
+> 즉, 태스크가 종료되지 않은 상태라 하더라도 대기하지 않고 다음 태스크를 실행한다.
+
+### Executor
+> Thread, Runnable과 같은 low level API를 프로그래머가 직접 다루는 것은 현실적으로 어렵다. (수십,수백 개 쓰레드의 자원을 관리하려면..머리가 꽤 아플 것이다.)  
+> 그래서 쓰레드를 만들고 관리하는 작업을 애플리케이션에서 분리하여 high level API인 'Executor'에 위임하였다.  
+> 주요 인터페이스로는, 1) Executor, 2) ExecutorService, 3) ScheduledExecutorService 가 있다.  
+> 
+> **Executor**  
+> ```java
+> Executor executor = Executors.newSingleThreadExecutor(); // single thread
+> executor.execute(() -> System.out.println("Thread: " + Thread.currentThread().getName()));
+> ```
+> Executor는 쓰레드를 생성하고 처리하는 인터페이스이다.
+> execute()라는 메서드만을 가지고 있는데, 쓰레드를 처리할 수는 있지만 종료할 수는 없다. idle 에서 실행시켜보면 강제종료하기 전까지 계속 실행되는 것을 확인할 수 있다.  
+> 
+> **ExecutorService**  
+> ```java
+> ExecutorService executorService = Executors.newSingleThreadExecutor();
+> executorService.execute(() -> System.out.println("Thread : " + Thread.currentThread().getName()));
+> executorService.shutdown();
+> 
+> ExecutorService executorService2 = Executors.newSingleThreadExecutor();
+> executorService2.submit(() -> {
+>     try {
+>         Thread.sleep(30000);
+>         System.out.println("Thread2 : " + Thread.currentThread().getName());
+>     } catch (InterruptedException e) {
+>         System.out.println("Call shutdownNow!");
+>         e.printStackTrace();
+>     }
+> });
+> executorService2.shutdownNow();
+> ```
+> ExecutorService는 Executor를 상속 받은 인터페이스이다. 쓰레드를 생성하고 처리하고 종료하는 등의 작업을 할 수 있다.  
+> submit()을 사용하면 작업을 ExecutorService가 만든 쓰레드풀에서 처리하고, shutdown()으로 쓰레드 풀을 종료할 수 있다.  
+> shutdown()을 사용하면 작업이 다 종료될 때까지 기다리고 종료하지만, 작업이 끝나든 말든 지금 당장 종료하고 싶다면 shutdownNow()를 사용하면 된다.  
+>   
+> ExecutorService는 Executor를 상속 받았기 때문에 execute()와 submit() 모두 호출이 가능하다.  
+> 다만, 두 메서드는 받을 수 있는 인자 타입에 차이가 있다. execute()는 Runnable 인터페이스만 인자로 받을 수 있지만, 
+> submit()은 Runnable과 Callable 인터페이스 모두 인자로 받을 수 있다.  
+> 또한, 두 메서드는 리턴 타입도 다르다. execute()는 반환 값이 없는 반면, submit()은 Future 객체를 반환한다.  
+> 
+> **Callable**  
+> Runnable은 반환 값이 void 이기 때문에, 작업을 처리하는 것 뿐 작업 결과를 리턴할 수 없었다.  
+> Callable은 Runnable과 유사하지만, 작업의 결과(Future 객체)를 받을 수 있다는 차이가 있다.  
+> ```java
+> public class Main {
+>     public static void main(String[] args) throws ExecutionException, InterruptedException {
+>         ExecutorService executorService = Executors.newSingleThreadExecutor();
+> 
+>         Callable<String> hello = () -> {
+>           Thread.sleep(2000);
+>           return "hello";
+>         };
+> 
+>         Future<String> result = executorService.submit(hello);
+>         
+>         System.out.println("Started!");
+>         result.get(); // 블로킹
+>         System.out.println("End!");
+>         executorService.shutdown();
+>     }
+> }
+> ```
+
+### Future
+> Future는 비동기적인 연산의 결과를 표현하는 클래스입니다. Future를 이용하면 멀티쓰레드 환경에서 처리된 어떤 데이터를 다른 쓰레드에 전달할 수 있습니다.  
+> Future 내부적으로 Thread-Safe 하도록 구현되었기 때문에 synchronized block을 사용하지 않아도 됩니다.  
+> Future 는 저수준의 스레드에 비해 직관적으로 이해하기 쉽다는 장점이 있다.  
+> Future를 이용하려면 시간이 오래걸리는 작업을 Callable 객체 내부로 감산 다음에 ExecutorService에 제출해야 한다.  
+> 
+> ```java
+> ExecutorService executor = Executors.newCachedThreadPool();
+> Future<Double> future = executor.submit(() -> doSomeLongComputation());   // 시간이 오래걸리는 Task
+> doSomethingElse(); // 비동기 작업을 수행하는 동안 다른 작업을 수행.
+> try {
+>     Double result = future.get(1,TimeUnit.SECONDS);
+> } catch(ExecutionException ee){
+>     // 계산 중 예외 발생
+> } catch (InterruptedException ie){
+>     // 현재 스레드에서 대기 중 인터럽트 발생
+> } catch (TimeoutException te){
+>     // Future가 완료되기 전에 타임아웃 발생
+> }
+> ```
+
+### CompatableFuture
+> **Future 제한**  
+> Future 인터페이스가 비동기 계산이 끝났는지 확인할 수 있는 isDone 메소드, 계산이 끝나길 기다리는 메소드, 결과 회수 메소드 등을 제공한다.  
+> 하지만 이들 메서드만으로 간결한 동시 실행코드를 구현하기에는 충분하지 않다.  
+> 예를들어 여러 Future의 결과가 있을 때 이들의 의존성을 표현하기가 어렵다.
+> 즉, 오래걸리는 A라는 계산이 끝나면 그 결과를 다른 오래 걸리는 계산 B로 전달하시오. 
+> 그리고 B의 결과가 나오면 다른 질의의 결과와 B의 결과를 조합하시오. 와 같은 요구사항을 Future 에서는 쉽게 구현할 수 없다.  
+> 
+> **Java 8 CompletableFuture**  
+> Java 8 에서 제공하는 CompletableFuture 클래스는 다음 기능을 제공한다.  
+> * 두 개의 비동기 계산 결과를 하나로 합친다. 두 가지 계산 결과는 서로 독립적일 수도 있으며 또는 두 번째 결과가 첫 번째 결과에 의존하는 상황일 수 있다.
+> * Future 집합이 실행하는 모든 태스크의 완료를 기다린다.
+> * Future 집합에서 가장 빨리 완료되는 태스크를 기다렸다가 결과를 얻는다.
+> * 프로그램적으로 Future를 완료시킨다.
+> * Future 완료 동작에 반응한다.(즉, 결과를 기다리면서 블록되지 않고 결과가 준비되었다는 알림을 받은 다음에 Future의 결과로 원하는 추가동작을 수행할 수 있음)
+> 
+> 비동기 API 에서는 메소드가 즉시 반환되며, 끝내지 못한 나머지 작업을 호출자 스레드와 동기적으로 실행될 수 있도록 다른 스레드에 할당한다. 
+> 이와같은 비동기 API를 사용하는 상황을 비블록 호출이라고 한다. 
+> 다른 스레드에 할당된 나머지 계산 결과는 콜백 메소드를 호출해서 전달하거나 호출자가 계산결과를 끝날 때까지 기다림 메소드를 추가로 호출하면서 전달된다.
+> 
+> 비동기 메서드 예시
+> ```java
+> public Future<Double> getPriceAsync(String product){
+>     CompletableFuture<Double> futurePrice = new CompletableFuture<>();
+> 
+>     new Thread(()->{
+>         double price = calculatePrice(product); // 다른 스레드에서 비동기적으로 계산 수행.
+>         futurePrice.complete(price);  // 오랜 시간이 걸리는 계산이 완료되면 Future에 값을 설정한다. JS 의 Promise 를 사용했을 때와 유사함을 확인할 수 있다.
+>     }).start();
+> 
+>     return futurePrice;
+> }
+> ```
+> 
+> 비동기 메서드 사용 예시
+> ```java
+> Future<Double> futurePrice = shop.getPriceAsync("my favorite product");
+> 
+> // 제품의 가격을계산하는 동안 다른작업을 수행
+> doSomethingElse();
+> 
+> //다른 상점 검색 등 다른 작업 수행
+> try{
+>     double price = futurePrice.get();
+> } catch (Exception e){
+>     throw new RuntimeException(e);
+> }
+> ```
+> **에러처리 방법**  
+> 지금까지 개발한 코드는 아무 문제없이 작동한다. 그런데 가격을 계산하는 동안 에러가 발생하면 어떻게 될까? 아마 이상한 일이 벌어질 것이다. 
+> 예외가 발생하면 해당 스레드에만 영향을 미친다. 즉 에러가 발생해도 가격 계산은 계속 진행되며 일의 순서가 꼬인다. 
+> 결과적으로 클라이언트는 get 메소드가 반환될 때까지 영원히 기다리게될 수도 있다.  
+> 클라이언트는 타임아웃값을 받는 get 메소드의 오버로드 버전을 만들어 이 문제를 해결할 수 있다. 
+> 이처럼 블록 문제가 발생할 수 있는 상황에서는 타임아웃을 활용하는것이 좋다. 
+> 그래야 문제가 발생했을 때 클라이언트가 영원히 블록되지 않고, 타임아웃 시간이 지나면 TimeoutException을 받을 수 있다. 
+> 하지만 이때 제품 가격 계산에 왜 에러가 발생했는지 알 수 있는 방법이 없다. 따라서 completableExceptionally 메소드를 이용하여 
+> CompletableFuture 내부에서 발생한 예외를 클라이언트로 전달해야 한다.  
+> ```java
+> public Future<Double> getPriceAsync(String product) {  
+>     CompletableFuture<Double> futurePrice = new CompletableFuture<>();  
+>     new Thread(()-> {    
+>         try{ 
+>            double price = calculatePrice(product);      
+>            futurePrice.complete(price);    
+>         } catch (Exception ex) {
+>             futurePrice.completeExceptionally(ex);    
+>         }  
+>     }).start();  
+>     return futurePrice;
+> }
+> ```
+> 
+> **팩토리 메소드 supplyAsync로 Completable Future 만들기**  
+> 지금까지 CompletableFuture를 직접 만들었다. 하지만 좀 더 간단하게 CompletableFuture를 만드는 방법도 있다. 
+> 예를 들어 getPriceAsync 메소드를 다음처럼 간단하게 한행으로 구현할 수도 있다.  
+> ```java
+> public Future<Double> getPriceAsync(String product) {  
+>     return CompletableFuture.supplyAsync(()-> calculatePrice(product));
+> }
+> ```
+
+### 참조사이트
+> [[Java]동기와 비동기 방식(Asynchronous processing model)](https://webheck.tistory.com/entry/Java%EB%8F%99%EA%B8%B0%EC%99%80-%EB%B9%84%EB%8F%99%EA%B8%B0-%EB%B0%A9%EC%8B%9DAsynchronous-processing-model)  
+> [Java - Future 사용 방법](https://codechacha.com/ko/java-future/)  
+> [JAVA 비동기 프로그래밍: CompletableFuture](https://velog.io/@suyeon-jin/JAVA-CompletableFuture)  
+> 
+
+---
+
+## Spring Async
+### TODO
+> TODO
