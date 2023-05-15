@@ -30,6 +30,60 @@
 > ```
 > Amazon EC2 사용 시 jre 만 설치되어 있는 경우 jstack 을 사용할 수 없다. 이 경우 JDK 를 설치하여 사용한다.  
 > Amazon EC2 에 JDK 1.8 버전 설치: `sudo yum install -y java-1.8.0-openjdk-devel.x86_64`  
+> 
+> 스레드 덤프에는 다음의 정보가 들어 있다.  
+> ```shell
+> "<Thread name>" #<ID> prio=<Thread Priority> tid=<Java-level Thread ID> nid=<Native Thread ID> <Thread State> [<Last Known Java Stack Pointer>]
+> java.lang.Thread.State: <Thread State>
+> Call stack
+> ```
+> 
+> **Thread Name**  
+> 스레드 이름이며, 이름을 변경하여 사용하는 경우 스레드 덤프에도 반영된다. 일반적으로 스레드 덤프를 해석하기 쉽게 의미 있는 이름으로 설정한다.
+> 
+> **ID**  
+> JVM 내 의 각 스레드에 할당된 고유 ID이다. 1부터 시작한다.
+> 
+> **Thread Priority**  
+> Java 스레드의 우선순위이다.
+> 
+> **OS Thread Priority**  
+> 자바의 스레드는 운영체제(OS)의 스레드와 매핑이 되는데, 매핑된 운영체제 스레드의 우선순위이다.
+> 
+> **Java-Level Thread ID**  
+> JVM 내부(JNI 코드)에서 관리하는 Native Thread 구조체의 포인터 주소이다.
+> 
+> **Native Thread ID**  
+> 자바 스레드에 매핑된 OS 스레드의 ID이다.  
+> Windows에서는 OS Level의 스레드 ID이며, Linux에서는 LWP(Light Weight Process)의 ID를 의미한다.
+> 
+> **Thread State**  
+> 스레드의 상태이다.
+> 
+> **Last Known Java Stack Pointer**  
+> 스레드의 현재 Stack Pointer(SP)의 주소를 의미한다.  
+> 스택 포인터는 스택에서 다음 데이터 갈 들어갈 영역을 뜻한다.  
+> 
+> **Call Stack**  
+> 현재 스레드가 수행되는 함수들의 호출 관계(콜 스택)를 표현한다.
+
+### 스레드 상태
+> **NEW**  
+> 스레드가 생성되었지만 아직 실행되지 않은 상태
+> 
+> **RUNNABLE**  
+> 현재 CPU를 점유하고 작업을 수행 중인 상태. 운영체제의 자원 분배로 인해 WAITING 상태가 될 수도 있다.  
+> 
+> **BLOCKED**  
+> Monitor를 획득하기 위해 다른 스레드가 락을 해제하기를 기다리는 상태  
+> 
+> **WAITING**  
+> wait() 메서드, join() 메서드, park() 메서드 등를 이용해 대기하고 있는 상태  
+> 
+> **TIMED_WAITING**  
+> sleep() 메서드, wait() 메서드, join() 메서드, park() 메서드 등을 이용해 대기하고 있는 상태.  
+> WAITING 상태와의 차이점은 메서드의 인수로 최대 대기 시간을 명시할 수 있어 외부적인 변화뿐만 아니라 시간에 의해서도 WAITING 상태가 해제될 수 있다는 것이다.  
+> 
 
 ### jmap
 > jmap명령어는 jvm의 맵을 보여주는 기능을 제공하는 기본 분석 도구이다. 따라서 자바 힙 메모리의 정보를 얻거나 메모리 dump를 떠서 분석을 할 수 있다.  
@@ -42,6 +96,9 @@
 > jmap 으로 heap 덤프를 뜬 .hprof 파일을 열어서 상세 정보를 보여주는 프로그램.  
 > **설치**  
 > macOS: `brew install --cask visualvm`  
+
+### 참조사이트
+> [[Java] JVM Thread Dump 분석하기](https://steady-coding.tistory.com/597)
 
 ---
 
@@ -506,3 +563,4 @@
 > **참조사이트**  
 > [JAVA -Xms -Xmx 등 메모리 설정](https://velog.io/@bbkyoo/JAVA-Xms-Xmx-%EB%A9%94%EB%AA%A8%EB%A6%AC-%EC%84%A4%EC%A0%95)  
 > [[java] JVM 옵션 -Xms 와 -Xmx 를 같게 하는 이유](https://kimxavi.tistory.com/entry/java-JVM-%EC%98%B5%EC%85%98-Xms-%EC%99%80-Xmx-%EB%A5%BC-%EA%B0%99%EA%B2%8C-%ED%95%98%EB%8A%94-%EC%9D%B4%EC%9C%A0?category=857470)  
+
