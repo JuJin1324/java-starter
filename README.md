@@ -250,8 +250,112 @@
 ---
 
 ## Java 9
-### TODO
+### 불변 Collection 생성 메서드 제공 
+> ```java
+> List immutableList = List.of();
+> List immutableList = List.of(“one”, “two”, “thress”);
 > 
+> Map immutableMap = Map.of(1, "one", 2, "two");
+> ```
+
+### try-with-resources 개선
+> 기존 Java 7 에서 Closeable 인터페이스를 구현한 클래스에 대해서 try (InputStream stream = ...) 로 선언하면 try 안에 선언된 변수에 대해서
+> try 문이 끝나면 자동으로 finally 안에서 close 처리를 해주던 기능을 Closeable 인터페이스를 구현한 클래스를 밖에서 선언 후 try 괄호 안에 해당 변수명을
+> 넣어주면 동일하게 동작하게 해주도록 변경됨.  
+> ```java
+> void tryWithResourcesByJava7() throws IOException {
+>     BufferedReader reader1 = new BufferedReader(new FileReader("test.txt"));
+>     try (BufferedReader reader2 = reader1) {
+>          // do something
+>     }
+> }
+> 
+> // final or effectively final이 적용되어 reader 참조를 사용할 수 있음
+> void tryWithResourcesByJava9() throws IOException {
+>     BufferedReader reader = new BufferedReader(new FileReader("test.txt"));
+>     try (reader) {
+>         // do something
+>     }
+> }
+> ```
+
+### Interface Private Method
+> 인터페이스 내에서 private 메서드 사용이 가능해짐
+> ```java
+> interface NewInterface {
+>     private static String staticPrivate() {
+>         return "static private";
+>     }
+>     
+>     private String instancePrivate() {
+>         return "instance private";
+>     }
+>     
+>     default void check() {
+>         String result = staticPrivate();
+>         NewInterface newIf = new NewInterface() {
+>             // anonymous class
+>         };
+>         result = newIf.instancePrivate();
+>     }
+> }
+> ```
+
+### Reactive Stream API 추가
+> Flow API 추가됨.  
+
+### CompletableFuture API 개선
+> ```java
+> // 50초후에 새로운 Executor 생성
+> Executor executor = CompletableFuture.delayedExecutor(50L, TimeUnit.SECONDS);
+> ```
+
+### Optional to Stream
+> ```java
+> Stream<Optional> person = getPerson(id);
+> // Optional.stream은 Stream<Optional>을 Stream<Person>으로 바꾸어줌
+> Stream personStream = person.flatMap(Optional::stream);
+> 
+> // 아래와 같이 Optional로 Stream을 생성할 수 있음.
+> Stream<Integer> stream = Optional.of(1).stream();
+> ```
+
+### HTTP2 클라이언트
+> * HttpURLConnection를 대체함  
+> * jdk.incubator.http 패키지 추가됨  
+> * HTTP/1.1 및 HTTP/2 프로토콜 지원  
+> * 동기/비동기 모드 지원  
+> * Apache HttpClient, Netty, Jetty와 비교할 수 있는 성능 
+> ```java
+> // 동기 호출
+> HttpResponse response = HttpRequest
+>                           .create(new URI("http://www.ocado.com"))
+>                           .body(noBody())
+>                           .GET().send();
+> 
+> int responseCode = response.responseCode();
+> String responseBody = response.body(asString());
+> System.out.println(responseBody);
+> 
+> // 비동기 호출
+> HttpRequest request = HttpRequest
+>                           .create(new URI("http://www.ocado.com"))
+>                           .body(noBody())
+>                           .GET();
+> 
+> CompletableFuture<HttpResponse> future = request.sendAsync();
+> Thread.sleep(10);
+> if (!future.isDone()) {
+>     future.cancel(true);
+>     System.err.println("timeout");
+>     return;
+> }
+> 
+> HttpResponse response = future.get();
+> ```
+
+### 참조사이트
+> [[java] java9(자바9) 새로운 기능 - 변화와 특징 요약](https://jang8584.tistory.com/258)
 
 ---
 
