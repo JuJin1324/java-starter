@@ -360,11 +360,25 @@
 ---
 
 ## Java 10
-### TODO
->
+### Local variable tyep inference
+> 초기화된 로컬 변수 선언 및 반복문에서 지역번수 선언 시 `var` 사용.  
+> ```java
+> // 초기화된 로컬 변수 선언
+> var numbers = List.of(1, 2, 3, 4);
+> 
+> // 반복문에서 지역변수 선언
+> for (var i = 0; i< numbers.size(); i++) {
+>     System.out.println(numbers.get(i));
+> }
+> ```
+
+### 기타 등등
+> Parallel Full GC for G1, Additional Unicode Language-Tag Extensions(java.util.Locale 관련) 등
+
+### 참조사이트
+> [Java 10 신규 기능특징 정리](https://itstory.tk/entry/Java-10-신규-기능특징-정리)
 
 ---
-
 
 ## Java 11
 ### 지원(Support) 일정
