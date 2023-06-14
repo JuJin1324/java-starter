@@ -109,7 +109,7 @@
 > 2.객체 생성을 캡슐화할 수 있다.  
 > 
 > **내 의견**  
-> 단순 데이터만 같은 객체의 경우에는 정적 팩토리 메서드가 갖는 이점이 없다. 
+> 단순 데이터만 가지는 객체의 경우에는 정적 팩토리 메서드가 갖는 이점이 없다. 
 > 비지니스 로직이 없는 경우에는 생성자가 갖는 매개변수와 정적 팩토리 메서드가 갖는 매개변수의 차이가 없다.  
 > 비지니스 로직을 갖는 객체의 경우 의미가 있을 수 있을 듯하다.  
 > 예를 들어서 OrderItem(주문 아이템) 의 경우 정적 팩토리 메서드인 of(Item item, ...) 을 사용하면 정적 팩토리 메서드 안에서 item.removeStock(count) 와 같이 
@@ -250,17 +250,135 @@
 ---
 
 ## Java 9
-### TODO
+### 불변 Collection 생성 메서드 제공 
+> ```java
+> List immutableList = List.of();
+> List immutableList = List.of(“one”, “two”, “thress”);
 > 
+> Map immutableMap = Map.of(1, "one", 2, "two");
+> ```
+
+### try-with-resources 개선
+> 기존 Java 7 에서 Closeable 인터페이스를 구현한 클래스에 대해서 try (InputStream stream = ...) 로 선언하면 try 안에 선언된 변수에 대해서
+> try 문이 끝나면 자동으로 finally 안에서 close 처리를 해주던 기능을 Closeable 인터페이스를 구현한 클래스를 밖에서 선언 후 try 괄호 안에 해당 변수명을
+> 넣어주면 동일하게 동작하게 해주도록 변경됨.  
+> ```java
+> void tryWithResourcesByJava7() throws IOException {
+>     BufferedReader reader1 = new BufferedReader(new FileReader("test.txt"));
+>     try (BufferedReader reader2 = reader1) {
+>          // do something
+>     }
+> }
+> 
+> // final or effectively final이 적용되어 reader 참조를 사용할 수 있음
+> void tryWithResourcesByJava9() throws IOException {
+>     BufferedReader reader = new BufferedReader(new FileReader("test.txt"));
+>     try (reader) {
+>         // do something
+>     }
+> }
+> ```
+
+### Interface Private Method
+> 인터페이스 내에서 private 메서드 사용이 가능해짐
+> ```java
+> interface NewInterface {
+>     private static String staticPrivate() {
+>         return "static private";
+>     }
+>     
+>     private String instancePrivate() {
+>         return "instance private";
+>     }
+>     
+>     default void check() {
+>         String result = staticPrivate();
+>         NewInterface newIf = new NewInterface() {
+>             // anonymous class
+>         };
+>         result = newIf.instancePrivate();
+>     }
+> }
+> ```
+
+### Reactive Stream API 추가
+> Flow API 추가됨.  
+
+### CompletableFuture API 개선
+> ```java
+> // 50초후에 새로운 Executor 생성
+> Executor executor = CompletableFuture.delayedExecutor(50L, TimeUnit.SECONDS);
+> ```
+
+### Optional to Stream
+> ```java
+> Stream<Optional> person = getPerson(id);
+> // Optional.stream은 Stream<Optional>을 Stream<Person>으로 바꾸어줌
+> Stream personStream = person.flatMap(Optional::stream);
+> 
+> // 아래와 같이 Optional로 Stream을 생성할 수 있음.
+> Stream<Integer> stream = Optional.of(1).stream();
+> ```
+
+### HTTP2 클라이언트
+> * HttpURLConnection를 대체함  
+> * jdk.incubator.http 패키지 추가됨  
+> * HTTP/1.1 및 HTTP/2 프로토콜 지원  
+> * 동기/비동기 모드 지원  
+> * Apache HttpClient, Netty, Jetty와 비교할 수 있는 성능 
+> ```java
+> // 동기 호출
+> HttpResponse response = HttpRequest
+>                           .create(new URI("http://www.ocado.com"))
+>                           .body(noBody())
+>                           .GET().send();
+> 
+> int responseCode = response.responseCode();
+> String responseBody = response.body(asString());
+> System.out.println(responseBody);
+> 
+> // 비동기 호출
+> HttpRequest request = HttpRequest
+>                           .create(new URI("http://www.ocado.com"))
+>                           .body(noBody())
+>                           .GET();
+> 
+> CompletableFuture<HttpResponse> future = request.sendAsync();
+> Thread.sleep(10);
+> if (!future.isDone()) {
+>     future.cancel(true);
+>     System.err.println("timeout");
+>     return;
+> }
+> 
+> HttpResponse response = future.get();
+> ```
+
+### 참조사이트
+> [[java] java9(자바9) 새로운 기능 - 변화와 특징 요약](https://jang8584.tistory.com/258)
 
 ---
 
 ## Java 10
-### TODO
->
+### Local variable tyep inference
+> 초기화된 로컬 변수 선언 및 반복문에서 지역번수 선언 시 `var` 사용.  
+> ```java
+> // 초기화된 로컬 변수 선언
+> var numbers = List.of(1, 2, 3, 4);
+> 
+> // 반복문에서 지역변수 선언
+> for (var i = 0; i< numbers.size(); i++) {
+>     System.out.println(numbers.get(i));
+> }
+> ```
+
+### 기타 등등
+> Parallel Full GC for G1, Additional Unicode Language-Tag Extensions(java.util.Locale 관련) 등
+
+### 참조사이트
+> [Java 10 신규 기능특징 정리](https://itstory.tk/entry/Java-10-신규-기능특징-정리)
 
 ---
-
 
 ## Java 11
 ### 지원(Support) 일정
@@ -430,9 +548,9 @@
 > }
 > ```
 
-### CompatableFuture
+### CompletableFuture
 > **Future 제한**  
-> Future 인터페이스가 비동기 계산이 끝났는지 확인할 수 있는 isDone 메소드, 계산이 끝나길 기다리는 메소드, 결과 회수 메소드 등을 제공한다.  
+> Future 인터페이스는 비동기 계산이 끝났는지 확인할 수 있는 isDone 메소드, 계산이 끝나길 기다리는 메소드, 결과 회수 메소드 등을 제공한다.  
 > 하지만 이들 메서드만으로 간결한 동시 실행코드를 구현하기에는 충분하지 않다.  
 > 예를들어 여러 Future의 결과가 있을 때 이들의 의존성을 표현하기가 어렵다.
 > 즉, 오래걸리는 A라는 계산이 끝나면 그 결과를 다른 오래 걸리는 계산 B로 전달하시오. 
@@ -520,7 +638,87 @@
 ---
 
 ## JVM 튜닝
+### 성능 튜닝 정의
+> 성능 튜닝에 앞서 '성능'을 어떤 관점에서 바라볼 것인가에 대한 기준이 필요하다. 
+> 일반 적으로 성능은 TPS와 응답 시간으로 구분될 수 있는데 JVM을 튜닝하기 전 TPS 에 초점을 둘 것인지 응답 시간에 초점을 둘 것인지 정한 뒤 
+> 성능 튜닝에 초점을 맞추는 것이 필요하다.  
+> 
+> **TPS(Transaction Per Seconds)**  
+> * 1초 당 처리 가능한 트랜잭션의 수	
+> * 서버의 성능을 측정하는데 있어서 가장 대표적으로 사용하는 항목	
+> * 동시 사용자가 증가하더라도 단위 시간 당 처리 건수, 즉 TPS는 변경되지 않음(따라서 서버 측정 기준으로 TPS 사용)	
+> 
+> **응답시간(Response Time)**  
+> * 사용자가 서버로 요청을 보낸 시간부터 응답을 받을 때까지의 모든 시간
+> * Network Time + Transaction Time
+> * 시스템에서 처리할 수 있는 한계치 이상으로 동시 접속자가 늘어날 경우 평균 응답 시간은 점점 증가
+
+### Java 의 성능 튜닝
+> Java의 경우 GC 알고리즘 처리 방식으로 인해 목적에 따라 Throughput(처리량) 또는 Response(응답속도) 관점에서 튜닝을 한다.
+> 
+> **Throughput 관점 GC**  	
+> * 주어진 시간 내에 최대한 많은 일을 처리하는 것을 목적으로 하는 GC	
+> * 대표 GC 알고리즘: Perallel GC	
+> 
+> **Response 관점 GC**  
+> * 요청에 대한 응답시간 측면에서 성능을 높이기 위한 GC
+> * 대표 GC 알고리즘: CMS GC, G1 GC
+
+### GC 알고리즘 선택
+> **Parallel GC**  	
+> * '처리량'이 중요한 시스템에서 주로 사용
+> * Full GC 수행 시 compaction 작업이 수행되기 때문에 GC 시간 자체는 많이 소요되나 일정한 멈춤 시간을 제공함
+>
+> **G1 GC**
+> * 응답시간이 중요한 시스템에서 주로 사용
+> * 성능적으로 가장 우수한 GC 방식이나, JDK 7 버전부터 정식 제공되었으며, Java 9 에서 Default GC 방식으로 채택
+> 
+> **[과거] CMS GC**  	
+> * 응답시간이 중요한 시스템에서 주로 사용
+> * compaction 미수행으로 Stop-The-World 시간은 짧으나 자주 Compaction 이 발생하는 시스템의 경우 오히려 Full GC 보다 Compation 시간이 오래 걸릴 수 있음
+> * 자원 사용량이 증가하는 점도 고려해야 함 
+
+### 메모리의 크기 설정
+> JVM의 메모리의 크기는 GC 발생 횟수와 수행 시간에 영향을 끼치기 때문에 성능과 밀접한 관계가 있다.  
+> 
+> **메모리 크기가 클 경우**  	
+> * GC 발생 횟수 감소
+> * GC 수행 시간 증가
+> 
+> **메모리가 작은 경우**  	 
+> * GC 발생 횟수 증가
+> * GC 수행 시간 감소
+> 
+> **New 영역 크기가 작은 경우**  	
+> * Old 영역으로 메모리가 많이 넘어가 GC 발생횟수 및 수행 시간 증가
+> 
+> 메모리 크기는 그 사이즈 설정에 따른 트레이드오프(Trade Off) 성격이 있기 때문에 다음과 같이 적용하는 것이 바람직하다. 
+> 즉, 서버의 성능에 따라, 사용하는 객체의 크기에 따라 실제 소요시간이 다르게 나타날 수 있음. 
+> 따라서 모니터링 및 성능테스트 작업 등을 통해 최적의 값을 찾아서 적용하는 것을 고려해야 함.  
+
 ### 메모리 설정
+> Java 객체가 생성, 실행, 보관되는 실질적인 영역에 대한 튜닝.  
+> -Xms를 통해 최소(기본) Heap Memory 영역과 -Xmx를 통해 Reserved(예약) 영역을 설정해 -Xms가 모두 소진되었을 경우 확장 할 수 있는 영역 예약.  
+> 
+> 설정 시 주의사항
+> 최소값의 경우, 평상시 할당하는 Heap 크기와 동일하게 설정 (불필요한 리소스 사용을 줄이기 위해서)
+> 
+> **-Xms(최소값)과 -Xmx(최대값)을 다르게 가져가야 하는 경우**  
+> Heap 사용량을 모니터링 해보았을 때 최소값에 가까운 사용량을 보이다가 특정 시점에 한 번씩 증가하는 시스템.
+> 
+> **-Xms(최소값)과 -Xmx(최대값)을 같게 가져가야 하는 경우**  
+> Heap size 확장이 자주 발생하는 시스템.  
+> 기동 후 할당된 Heap Size 를 조절할 필요가 없어 부수적인 리소스 낭비를 줄일 수 있음.  
+> 다만 최소값이 커지면서 WAS 인스턴스 기동 및 Full GC 시간이 더 오래 걸리는 단점이 발생할 수 있음.  
+> 
+> **Heap Memory - New 영역크기지정**  
+> NewRatio와 NewSize 두 항목을 동시에 지정했을 때는 두 값 중 큰 값을 사용.  
+> 대부분의 객체는 생존 기간이 길지 않기 때문에 New 영역의 크기 지정이 GC 전반적인 성능에 영향 줌.  
+> * New 영역은 일반적으로 기본 전체 영역의 10% 이상으로 설정.  
+> * New 영역이 작은 경우, Old 영역으로 넘어가는 메모리의 양이 많아 Full GC가 자주 발생하며 시간도 오래 걸림.  
+> * New 영역이 지나치게 클 경우 오히려 응답 반응성이 떨어질 수 있는 문제가 발생.  
+> * JVM 에서 공식적으로 제공하는 OS 별 NewRatio 값 참고.  
+> 
 > **-Xms**  
 > -Xms이 설정은 Java 힙의 초기 크기를 제어합니다. 이 매개변수를 적절하게 조정하면 가비지 콜렉션의 오버헤드를 줄여서 서버 응답 시간 및 처리량을 개선합니다. 
 > 일부 응용프로그램의 경우, 이 옵션에 대한 기본 설정이 너무 낮아서 사소한 가비지 콜렉션의 수가 높아질 수 있습니다.  
@@ -570,6 +768,7 @@
 > **참조사이트**  
 > [JAVA -Xms -Xmx 등 메모리 설정](https://velog.io/@bbkyoo/JAVA-Xms-Xmx-%EB%A9%94%EB%AA%A8%EB%A6%AC-%EC%84%A4%EC%A0%95)  
 > [[java] JVM 옵션 -Xms 와 -Xmx 를 같게 하는 이유](https://kimxavi.tistory.com/entry/java-JVM-%EC%98%B5%EC%85%98-Xms-%EC%99%80-Xmx-%EB%A5%BC-%EA%B0%99%EA%B2%8C-%ED%95%98%EB%8A%94-%EC%9D%B4%EC%9C%A0?category=857470)  
+> [JVM 옵션을 통한 성능 튜닝 이해](https://sharplee7.tistory.com/61)
 
 ### 서버 관련 설정
 > `-Djava.awt.headless=true`  
