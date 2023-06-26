@@ -589,7 +589,7 @@
 > // 제품의 가격을계산하는 동안 다른작업을 수행
 > doSomethingElse();
 > 
-> //다른 상점 검색 등 다른 작업 수행
+> // 비동기 로직이 완료될 때까지 블로킹으로 대기
 > try{
 >     double price = futurePrice.get();
 > } catch (Exception e){
