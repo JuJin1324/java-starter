@@ -106,30 +106,29 @@
 ### 정적 팩토리 메서드(Static Factory Method)
 > 생성자에 비해 갖는 장점  
 > 1.이름을 가질 수 있다.  
-> 2.객체 생성을 캡슐화할 수 있다.  
+> 2.호출 될 때마다 인스턴스를 새로 생성하지 않아도 된다.  
+> 3.반환 타입의 하위 타입 객체를 반환할 수 있는 능력이 있다.  
+> 4.입력 매개변수에 따라 매번 다른 클래스의 객체를 반환할 수 있다.  
+> 5.정적 팩터리 메서드를 작성하는 시점에는 반환할 객체의 클래스가 존재하지 않아도 된다.    
 > 
 > **내 의견**  
-> 단순 데이터만 가지는 객체의 경우에는 정적 팩토리 메서드가 갖는 이점이 없다. 
-> 비지니스 로직이 없는 경우에는 생성자가 갖는 매개변수와 정적 팩토리 메서드가 갖는 매개변수의 차이가 없다.  
-> 비지니스 로직을 갖는 객체의 경우 의미가 있을 수 있을 듯하다.  
-> 예를 들어서 OrderItem(주문 아이템) 의 경우 정적 팩토리 메서드인 of(Item item, ...) 을 사용하면 정적 팩토리 메서드 안에서 item.removeStock(count) 와 같이 
-> 단순히 데이터 저장 뿐 아니라 객체와의 관계에서 행해지는 비지니스 로직이 있는 경우에 의미가 있다.
-> 
-> 일단 생성자의 매개변수에 해당 객체가 가지는 멤버 변수 외의 요소는 지양한다고 가정했을 경우 DTO 객체를 생성자 대신에 from 메서드를 사용해서 만드는 것도 의미가 있을 듯 하다.
-> 예시로 CarReadDto 를 생성할 때 Car 를 통해서 만들려는 경우 `CarReadDto dto = new CarReadDto(...)` 대신에 `CarReadDto dto = CarReadDto.from(car)` 로 만드는 것이
-> 코드를 이해하는데 도움이 될 것으로 생각된다.
+> Controller 에서 오류 응답을 반환하는 `ErrorResponse.of(e);` 와 같은 형태로 사용하거나  
+> Spring security 에서 예외 발생으로 인하여 빈 AuthenticationToken 을 생성해야할 경우인 `BearerAuthenticationToken.emptyToken()` 과 같은 경우에 사용이 적당해보인다.  
 > 
 > **네이밍 컨벤션**  
 > `from`: 하나의 매개 변수를 받아서 객체를 생성  
 > `of`: 여러개의 매개 변수를 받아서 객체를 생성  
 > `getInstance` 혹은 `instance`: 인스턴스를 생성. 이전에 반환했던 것과 같을 수 있음. 보통 싱글톤 객체에서 많이 사용.   
 > 
-> 참조사이트: [정적 팩토리 메서드(Static Factory Method)는 왜 사용할까?](https://tecoble.techcourse.co.kr/post/2020-05-26-static-factory-method/)
+> **참조사이트**  
+> [정적 팩토리 메서드(Static Factory Method)는 왜 사용할까?](https://tecoble.techcourse.co.kr/post/2020-05-26-static-factory-method/)  
+> [정적 팩토리 메서드(Static Factory Method)](https://velog.io/@cjh8746/정적-팩토리-메서드Static-Factory-Method)
 
 ---
 
-## Java 8
+## [LTS] Java 8
 ### 지원(Support) 일정
+> LTS(Long term support) Version  
 > Amazon Corretto 8: 2026년 5월까지  
 > 참조사이트: [Amazon Corretto 8 및 11 지원 연장](https://aws.amazon.com/ko/about-aws/whats-new/2020/08/amazon-corretto-8-11-support-extended/)
 > 
@@ -219,6 +218,10 @@
 > // timestamp millisecond -> UTC LocalDateTime 변환
 > long nowTimestamp = System.currentTimeMillis(); 
 > LocalDateTime timestampUTC = LocalDateTime.ofInstant(Instant.ofEpochMilli(nowTimestamp), ZONE_UTC);
+> 
+> // LocalDateTime -> "yyyy-MM-ddTHH:mm:ss.SSSSSS" 로 변환
+> String formatted = nowUTC.format(DateTimeFormatter.ISO_DATE_TIME);
+> System.out.println("formatted = " + formatted);
 > ```
 
 ### Optional
@@ -360,7 +363,7 @@
 ---
 
 ## Java 10
-### Local variable tyep inference
+### Local variable type inference
 > 초기화된 로컬 변수 선언 및 반복문에서 지역번수 선언 시 `var` 사용.  
 > ```java
 > // 초기화된 로컬 변수 선언
@@ -380,8 +383,9 @@
 
 ---
 
-## Java 11
+## [LTS] Java 11
 ### 지원(Support) 일정
+> LTS(Long term support) Version  
 > Amazon Corretto 11: 2027년 9월까지  
 > 참조사이트: [Amazon Corretto 8 및 11 지원 연장](https://aws.amazon.com/ko/about-aws/whats-new/2020/08/amazon-corretto-8-11-support-extended/)
 > 

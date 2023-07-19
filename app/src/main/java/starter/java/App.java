@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 public class App {
@@ -31,6 +32,10 @@ public class App {
         long nowTimestamp = System.currentTimeMillis();
         LocalDateTime timestampUTC = LocalDateTime.ofInstant(Instant.ofEpochMilli(nowTimestamp), ZONE_UTC);
         System.out.println("timestampUTC = " + timestampUTC);
+
+        // LocalDateTime -> "yyyy-MM-ddTHH:mm:ss.SSSSSS" 로 변환
+        String formatted = nowUTC.format(DateTimeFormatter.ISO_DATE_TIME);
+        System.out.println("formatted = " + formatted);
 
         Optional<String> stringOpt = getString("optional");
         stringOpt.ifPresent(str -> System.out.println("str = " + str));
