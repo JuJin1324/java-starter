@@ -112,8 +112,10 @@
 > 5.정적 팩터리 메서드를 작성하는 시점에는 반환할 객체의 클래스가 존재하지 않아도 된다.    
 > 
 > **내 의견**  
+> `of` 메서드나 `from` 메서드와 같이 팩토리 메서드가 의미를 가졌을 때 조금더 코드를 이해하기 쉬워지는 경우 사용한다.  
 > Controller 에서 오류 응답을 반환하는 `ErrorResponse.of(e);` 와 같은 형태로 사용하거나  
 > Spring security 에서 예외 발생으로 인하여 빈 AuthenticationToken 을 생성해야할 경우인 `BearerAuthenticationToken.emptyToken()` 과 같은 경우에 사용이 적당해보인다.  
+> 또는 DTO 클래스가 엔티티 클래스를 받아 생성하는 경우처럼 `DtoClass.from(EntityClass);` 이런식으로 사용하는 것도 좋아보인다.   
 > 
 > **네이밍 컨벤션**  
 > `from`: 하나의 매개 변수를 받아서 객체를 생성  
@@ -222,6 +224,23 @@
 > // LocalDateTime -> "yyyy-MM-ddTHH:mm:ss.SSSSSS" 로 변환
 > String formatted = nowUTC.format(DateTimeFormatter.ISO_DATE_TIME);
 > System.out.println("formatted = " + formatted);
+> ```
+
+### SpringBoot 타임존 설정하기
+> ```java
+> @SpringBootApplication
+> public class PracticeApplication {
+> 
+>     public static void main(String[] args) {
+>         SpringApplication.run(PracticeApplication.class, args);
+>     }
+> 
+>     @PostConstruct
+>     public void init() {
+>         // timezone 설정
+>         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+>     }
+> }
 > ```
 
 ### Optional
@@ -704,7 +723,7 @@
 > Java 객체가 생성, 실행, 보관되는 실질적인 영역에 대한 튜닝.  
 > -Xms를 통해 최소(기본) Heap Memory 영역과 -Xmx를 통해 Reserved(예약) 영역을 설정해 -Xms가 모두 소진되었을 경우 확장 할 수 있는 영역 예약.  
 > 
-> 설정 시 주의사항
+> 설정 시 주의사항  
 > 최소값의 경우, 평상시 할당하는 Heap 크기와 동일하게 설정 (불필요한 리소스 사용을 줄이기 위해서)
 > 
 > **-Xms(최소값)과 -Xmx(최대값)을 다르게 가져가야 하는 경우**  
