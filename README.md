@@ -277,7 +277,7 @@
 > List immutableList = List.of();
 > List immutableList = List.of(“one”, “two”, “thress”);
 > 
-> Map immutableMap = Map.of(1, "one", 2, "two");
+> Map<Integer, String> immutableMap = Map.of(1, "one", 2, "two");
 > ```
 
 ### try-with-resources 개선
@@ -334,9 +334,9 @@
 
 ### Optional to Stream
 > ```java
-> Stream<Optional> person = getPerson(id);
+> Stream<Optional<Person>> person = getPerson(id);
 > // Optional.stream은 Stream<Optional>을 Stream<Person>으로 바꾸어줌
-> Stream personStream = person.flatMap(Optional::stream);
+> Stream<Person> personStream = person.flatMap(Optional::stream);
 > 
 > // 아래와 같이 Optional로 Stream을 생성할 수 있음.
 > Stream<Integer> stream = Optional.of(1).stream();
@@ -554,7 +554,7 @@
 > Future는 비동기적인 연산의 결과를 표현하는 클래스입니다. Future를 이용하면 멀티쓰레드 환경에서 처리된 어떤 데이터를 다른 쓰레드에 전달할 수 있습니다.  
 > Future 내부적으로 Thread-Safe 하도록 구현되었기 때문에 synchronized block을 사용하지 않아도 됩니다.  
 > Future 는 저수준의 스레드에 비해 직관적으로 이해하기 쉽다는 장점이 있다.  
-> Future를 이용하려면 시간이 오래걸리는 작업을 Callable 객체 내부로 감산 다음에 ExecutorService에 제출해야 한다.  
+> Future를 이용하려면 시간이 오래걸리는 작업을 Callable 객체 내부로 감싼 다음에 ExecutorService 에 제출해야 한다.  
 > 
 > ```java
 > ExecutorService executor = Executors.newCachedThreadPool();
