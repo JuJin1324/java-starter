@@ -106,25 +106,25 @@
 ### 정적 팩토리 메서드(Static Factory Method)
 > 생성자에 비해 갖는 장점  
 > 1.이름을 가질 수 있다.  
-> 2.객체 생성을 캡슐화할 수 있다.  
+> 2.호출 될 때마다 인스턴스를 새로 생성하지 않아도 된다.  
+> 3.반환 타입의 하위 타입 객체를 반환할 수 있는 능력이 있다.  
+> 4.입력 매개변수에 따라 매번 다른 클래스의 객체를 반환할 수 있다.  
+> 5.정적 팩터리 메서드를 작성하는 시점에는 반환할 객체의 클래스가 존재하지 않아도 된다.    
 > 
 > **내 의견**  
-> 단순 데이터만 가지는 객체의 경우에는 정적 팩토리 메서드가 갖는 이점이 없다. 
-> 비지니스 로직이 없는 경우에는 생성자가 갖는 매개변수와 정적 팩토리 메서드가 갖는 매개변수의 차이가 없다.  
-> 비지니스 로직을 갖는 객체의 경우 의미가 있을 수 있을 듯하다.  
-> 예를 들어서 OrderItem(주문 아이템) 의 경우 정적 팩토리 메서드인 of(Item item, ...) 을 사용하면 정적 팩토리 메서드 안에서 item.removeStock(count) 와 같이 
-> 단순히 데이터 저장 뿐 아니라 객체와의 관계에서 행해지는 비지니스 로직이 있는 경우에 의미가 있다.
-> 
-> 일단 생성자의 매개변수에 해당 객체가 가지는 멤버 변수 외의 요소는 지양한다고 가정했을 경우 DTO 객체를 생성자 대신에 from 메서드를 사용해서 만드는 것도 의미가 있을 듯 하다.
-> 예시로 CarReadDto 를 생성할 때 Car 를 통해서 만들려는 경우 `CarReadDto dto = new CarReadDto(...)` 대신에 `CarReadDto dto = CarReadDto.from(car)` 로 만드는 것이
-> 코드를 이해하는데 도움이 될 것으로 생각된다.
+> `of` 메서드나 `from` 메서드와 같이 팩토리 메서드가 의미를 가졌을 때 조금더 코드를 이해하기 쉬워지는 경우 사용한다.  
+> Controller 에서 오류 응답을 반환하는 `ErrorResponse.of(e);` 와 같은 형태로 사용하거나  
+> Spring security 에서 예외 발생으로 인하여 빈 AuthenticationToken 을 생성해야할 경우인 `BearerAuthenticationToken.emptyToken()` 과 같은 경우에 사용이 적당해보인다.  
+> 또는 DTO 클래스가 엔티티 클래스를 받아 생성하는 경우처럼 `DtoClass.from(EntityClass);` 이런식으로 사용하는 것도 좋아보인다.   
 > 
 > **네이밍 컨벤션**  
 > `from`: 하나의 매개 변수를 받아서 객체를 생성  
 > `of`: 여러개의 매개 변수를 받아서 객체를 생성  
 > `getInstance` 혹은 `instance`: 인스턴스를 생성. 이전에 반환했던 것과 같을 수 있음. 보통 싱글톤 객체에서 많이 사용.   
 > 
-> 참조사이트: [정적 팩토리 메서드(Static Factory Method)는 왜 사용할까?](https://tecoble.techcourse.co.kr/post/2020-05-26-static-factory-method/)
+> **참조사이트**  
+> [정적 팩토리 메서드(Static Factory Method)는 왜 사용할까?](https://tecoble.techcourse.co.kr/post/2020-05-26-static-factory-method/)  
+> [정적 팩토리 메서드(Static Factory Method)](https://velog.io/@cjh8746/정적-팩토리-메서드Static-Factory-Method)
 
 ### DTO 생성자
 > DTO 생성자로 `from(Domain Entity)` 의 팩토리 메서드를 사용하는 경우 장점은 다음과 같다.  
@@ -132,8 +132,9 @@
 
 ---
 
-## Java 8
+## [LTS] Java 8
 ### 지원(Support) 일정
+> LTS(Long term support) Version  
 > Amazon Corretto 8: 2026년 5월까지  
 > 참조사이트: [Amazon Corretto 8 및 11 지원 연장](https://aws.amazon.com/ko/about-aws/whats-new/2020/08/amazon-corretto-8-11-support-extended/)
 > 
@@ -223,6 +224,27 @@
 > // timestamp millisecond -> UTC LocalDateTime 변환
 > long nowTimestamp = System.currentTimeMillis(); 
 > LocalDateTime timestampUTC = LocalDateTime.ofInstant(Instant.ofEpochMilli(nowTimestamp), ZONE_UTC);
+> 
+> // LocalDateTime -> "yyyy-MM-ddTHH:mm:ss.SSSSSS" 로 변환
+> String formatted = nowUTC.format(DateTimeFormatter.ISO_DATE_TIME);
+> System.out.println("formatted = " + formatted);
+> ```
+
+### SpringBoot 타임존 설정하기
+> ```java
+> @SpringBootApplication
+> public class PracticeApplication {
+> 
+>     public static void main(String[] args) {
+>         SpringApplication.run(PracticeApplication.class, args);
+>     }
+> 
+>     @PostConstruct
+>     public void init() {
+>         // timezone 설정
+>         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+>     }
+> }
 > ```
 
 ### Optional
@@ -259,7 +281,7 @@
 > List immutableList = List.of();
 > List immutableList = List.of(“one”, “two”, “thress”);
 > 
-> Map immutableMap = Map.of(1, "one", 2, "two");
+> Map<Integer, String> immutableMap = Map.of(1, "one", 2, "two");
 > ```
 
 ### try-with-resources 개선
@@ -316,9 +338,9 @@
 
 ### Optional to Stream
 > ```java
-> Stream<Optional> person = getPerson(id);
+> Stream<Optional<Person>> person = getPerson(id);
 > // Optional.stream은 Stream<Optional>을 Stream<Person>으로 바꾸어줌
-> Stream personStream = person.flatMap(Optional::stream);
+> Stream<Person> personStream = person.flatMap(Optional::stream);
 > 
 > // 아래와 같이 Optional로 Stream을 생성할 수 있음.
 > Stream<Integer> stream = Optional.of(1).stream();
@@ -364,7 +386,7 @@
 ---
 
 ## Java 10
-### Local variable tyep inference
+### Local variable type inference
 > 초기화된 로컬 변수 선언 및 반복문에서 지역번수 선언 시 `var` 사용.  
 > ```java
 > // 초기화된 로컬 변수 선언
@@ -384,8 +406,9 @@
 
 ---
 
-## Java 11
+## [LTS] Java 11
 ### 지원(Support) 일정
+> LTS(Long term support) Version  
 > Amazon Corretto 11: 2027년 9월까지  
 > 참조사이트: [Amazon Corretto 8 및 11 지원 연장](https://aws.amazon.com/ko/about-aws/whats-new/2020/08/amazon-corretto-8-11-support-extended/)
 > 
@@ -535,7 +558,7 @@
 > Future는 비동기적인 연산의 결과를 표현하는 클래스입니다. Future를 이용하면 멀티쓰레드 환경에서 처리된 어떤 데이터를 다른 쓰레드에 전달할 수 있습니다.  
 > Future 내부적으로 Thread-Safe 하도록 구현되었기 때문에 synchronized block을 사용하지 않아도 됩니다.  
 > Future 는 저수준의 스레드에 비해 직관적으로 이해하기 쉽다는 장점이 있다.  
-> Future를 이용하려면 시간이 오래걸리는 작업을 Callable 객체 내부로 감산 다음에 ExecutorService에 제출해야 한다.  
+> Future를 이용하려면 시간이 오래걸리는 작업을 Callable 객체 내부로 감싼 다음에 ExecutorService 에 제출해야 한다.  
 > 
 > ```java
 > ExecutorService executor = Executors.newCachedThreadPool();
@@ -593,7 +616,7 @@
 > // 제품의 가격을계산하는 동안 다른작업을 수행
 > doSomethingElse();
 > 
-> //다른 상점 검색 등 다른 작업 수행
+> // 비동기 로직이 완료될 때까지 블로킹으로 대기
 > try{
 >     double price = futurePrice.get();
 > } catch (Exception e){
@@ -704,7 +727,7 @@
 > Java 객체가 생성, 실행, 보관되는 실질적인 영역에 대한 튜닝.  
 > -Xms를 통해 최소(기본) Heap Memory 영역과 -Xmx를 통해 Reserved(예약) 영역을 설정해 -Xms가 모두 소진되었을 경우 확장 할 수 있는 영역 예약.  
 > 
-> 설정 시 주의사항
+> 설정 시 주의사항  
 > 최소값의 경우, 평상시 할당하는 Heap 크기와 동일하게 설정 (불필요한 리소스 사용을 줄이기 위해서)
 > 
 > **-Xms(최소값)과 -Xmx(최대값)을 다르게 가져가야 하는 경우**  
