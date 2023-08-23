@@ -189,6 +189,17 @@
 > }
 > ```
 
+### IoC(Inversion of Control)
+> IoC(제어의 역전)는 오브젝트 생성, 관계설정, 사용, 제거 등 오브젝트 전반에 걸친 모든 제어권을 애플리케이션이 갖는게 아니라 프레임워크의 컨테이너에게 넘기는 개념을 말한다. 
+> (참고로 스프링 프레임워크 만의 개념이 아니다.)  
+> IoC 는 다음의 항목을 프레임워크로 위임한다.  
+> * Inject Configuration (설정 주입)  
+> * Inject Dependencies (의존성 주입)  
+> * Manage Lifecycle (라이프사이클 관리)
+> 
+> [Spring | 제어의 역전이란? (What is Inversion of Control?)](https://velog.io/@virtualplastic/Spring-제어의-역전-IOC-Inversion-of-Control)    
+> [IoC(Inversion of Control, 제어의 역전) / DI(Dependency Injection, 의존관계 주입)](https://beststar-1.tistory.com/33)  
+
 ---
 
 ## [LTS] Java 8
