@@ -126,6 +126,69 @@
 > [정적 팩토리 메서드(Static Factory Method)는 왜 사용할까?](https://tecoble.techcourse.co.kr/post/2020-05-26-static-factory-method/)  
 > [정적 팩토리 메서드(Static Factory Method)](https://velog.io/@cjh8746/정적-팩토리-메서드Static-Factory-Method)
 
+### DI
+> DI(의존관계 주입)는 객체가 의존하는 또 다른 객체를 외부에서 선언하고 이를 주입받아 사용하는 것이다.  
+> before DI: Store 내부에서 사용하는 Pencil 객체를 Store 내부에서 직접 생성해서 사용한다.    
+> ```java
+> public class Store {
+>     private Pencil pencil;
+>   
+>     public Store() {
+>         this.pencil = new Pencil();
+>     }
+> }
+> ```
+> after DI: Store 내부에서 사용하는 Pencil 객체를 Store 외부에서 구현하여 주입받는다.  
+> ```java
+> public class Store {
+>     private Pencil pencil;
+>   
+>     public Store(Pencil pencil) {
+>         this.pencil = pencil;
+>     }
+> } 
+> ```
+> DI 의 장점은 다음과 같다.  
+> 1. 의존성이 줄어든다.  
+> 의존한다는 것은 그 의존 대상의 변화에 취약하다는 것이다.(대상이 변화하였을 때, 이에 맞게 수정해야함) DI로 구현하게 되었을 때, 
+> 주입받는 대상이 변하더라도 그 구현 자체를 수정할 일이 없거나 줄어들게됨.
+> 2. 재사용성이 높은 코드가 된다: 기존에 Store 내부에서만 사용되었던 Pencil 을 별도로 구분하여 구현하면, 다른 클래스에서 재사용할 수가 있다.
+> 3. 테스트하기 좋은 코드가 된다: Store 의 테스트를 Pencil 테스트와 분리하여 진행할 수 있다.
+> 4. 가독성이 높아진다: Pencil 의 기능들을 별도로 분리하게 되어 자연스레 가동성이 높아진다.
+> 
+> **참조사이트**  
+> [의존관계 주입(Dependency Injection) 쉽게 이해하기](https://tecoble.techcourse.co.kr/post/2021-04-27-dependency-injection/)  
+> [[Spring] 의존성 주입(Dependency Injection, DI)이란? 및 Spring이 의존성 주입을 지원하는 이유](https://mangkyu.tistory.com/150)  
+
+### Service Interface
+> Service 클래스 앞에 인터페이스를 두는 이유는 다음과 같다.  
+> * DI 에서 클래스 간의 관계를 맺어 두 클래스가 강하게 결합되는 문제를 해결한다. Service 객체를 사용하는 클래스에서 직접 Service 객체를 참조하는 대신 
+> 인터페이스를 참조하여 해당 인터페이스를 구현하는 객체를 교체하기 쉽도록 한다.  
+> * 인터페이스에 정의된 메서드만 제공한다는 명확한 표현이 된다.
+> 
+> 강하게 결합된 클래스를 인터페이스로 해결: Main 에서 Store 클래스는 사실상 Pencil 객체를 참조하지만 Store 클래스의 코드상에서는 
+> Pencil 클래스를 직접 참조하지 않고 Product 인터페이스를 참조하게 하여 객체의 유연성을 높힌다.(Product 인터페이스를 구현한 다른 클래스로도 DI 가 가능해짐)
+> ```java
+> public interface Product {
+> }
+> 
+> public class Pencil implements Product {
+> }
+> 
+> public class Store {
+>     private Product product;
+> 
+>     public Store(Product product) {
+>         this.product = product;
+>     }
+> }
+> 
+> public static void main(...) {
+>     Pencil pencil = new Pencil();
+>     Store store = new Store(pencil);
+> }
+> ```
+
 ---
 
 ## [LTS] Java 8
