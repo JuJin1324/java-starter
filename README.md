@@ -126,6 +126,10 @@
 > [정적 팩토리 메서드(Static Factory Method)는 왜 사용할까?](https://tecoble.techcourse.co.kr/post/2020-05-26-static-factory-method/)  
 > [정적 팩토리 메서드(Static Factory Method)](https://velog.io/@cjh8746/정적-팩토리-메서드Static-Factory-Method)
 
+### DTO 생성자
+> DTO 생성자로 `from(Domain Entity)` 의 팩토리 메서드를 사용하는 경우 장점은 다음과 같다.  
+> DTO 내의 필드가 추가되거나 제거되는 경우 DTO 클래스 파일만 수정하면 된다. 다른 클래스 파일을 수정할 필요가 없다.  
+
 ### DI
 > DI(의존관계 주입)는 객체가 의존하는 또 다른 객체를 외부에서 선언하고 이를 주입받아 사용하는 것이다.  
 > before DI: Store 내부에서 사용하는 Pencil 객체를 Store 내부에서 직접 생성해서 사용한다.    
