@@ -204,6 +204,13 @@
 > [Spring | 제어의 역전이란? (What is Inversion of Control?)](https://velog.io/@virtualplastic/Spring-제어의-역전-IOC-Inversion-of-Control)    
 > [IoC(Inversion of Control, 제어의 역전) / DI(Dependency Injection, 의존관계 주입)](https://beststar-1.tistory.com/33)  
 
+### 상속
+> * 클래스의 상속은 데이터와 행위(메서드)를 상속한다. 
+> * 인터페이스의 구현은 행위(메서드)만 상속한다. 
+> 
+> 클래스를 상속할 때 데이터만 있는 부모클래스를 상속하지 않는다. 상속 및 구현에서 중요한 것은 행위를 상속하는 것이다.  
+> 그렇기 때문에 DTO 에서 공통인자를 뽑아서 부모클래스를 만들어 상속하는 것은 하지 않는다. DTO 공통 부모 상속은 데이터만 상속하고 메서드는 상속하지 않기 때문이다.  
+
 ---
 
 ## [LTS] Java 8
